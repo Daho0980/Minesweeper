@@ -60,9 +60,7 @@ def makeGrid(y:int, x:int, mineSize:int) -> list:
     while count < mineSize:
         Ry, Rx = random.randrange(0, y), random.randrange(0, x)
         if grid[Ry][Rx] == '.':   grid[Ry][Rx] = icons["mine"]; count += 1
-        elif grid[Ry][Rx] == icons["mine"]:
-            # print(f"access denided:\n    count : {count}\n    size : {mineSize}")
-            continue
+        elif grid[Ry][Rx] == icons["mine"]: continue
 
     for row in range(y):
         for column in range(x):
@@ -76,14 +74,14 @@ def makeGrid(y:int, x:int, mineSize:int) -> list:
                 if row == 0:
                     posS[0], posS[1], posS[2] = [0, 0], [0, 0], [0, 0]
 
-                    if column == 0:                  posS[3], posS[5] = [0, 0], [0, 0]
-                    elif column == len(grid[row])-1: posS[4], posS[7] = [0, 0], [0, 0]
+                    if column == 0:                posS[3], posS[5] = [0, 0], [0, 0]
+                    if column == len(grid[row])-1: posS[4], posS[7] = [0, 0], [0, 0]
 
                 elif row == len(grid)-1:
                     posS[5], posS[6], posS[7] = [0, 0], [0, 0], [0, 0]
 
-                    if column == 0:                  posS[0], posS[3] = [0, 0], [0, 0]
-                    elif column == len(grid[row])-1: posS[2], posS[4] = [0, 0], [0, 0]
+                    if column == 0:                posS[0], posS[3] = [0, 0], [0, 0]
+                    if column == len(grid[row])-1: posS[2], posS[4] = [0, 0], [0, 0]
 
                 elif column == 0: posS[0], posS[3], posS[5] = [0, 0], [0, 0], [0, 0]
 
@@ -117,13 +115,35 @@ def calculateDensity(grid):
     return int(density)
 
 def returnGridGraphic(grid):
+    def returnSquare(count) -> int:
+        output = 1
+        for i in range(count+1): output *= 1 if i == 0 else 10
+        return output
+    
     Display = ""
     maxBlankSize = len(str(len(grid)))+1
 
-    # Display += ' '*maxBlankSize + ' '.join(map(str, [i for i in range(len(grid))])) + "\n"
-    xNum = f"{colorKey[3]}%{colorKey['end']}" + ' '*(maxBlankSize-1)
-    for nGridLen in [i for i in range(len(grid))]: xNum += f"{str(nGridLen)[-1]} "
-    Display += xNum + "\n"
+    # numberLine_X
+    xNum = ""
+    MAL  = len(max(grid)) # Max Array Len
+
+    for nums in range(len(str(MAL)), -1, -1):
+        startTo  = 0
+        plusTo   = 1 if MAL%returnSquare(nums) != 0 else 0
+        blank    = ' '*(returnSquare(nums)*2) if nums != 0 else ''
+
+        xNum    += (f"{colorKey[3]}%{colorKey['end']}" + ' '*(maxBlankSize-1)) if nums == 0 else (" " + ' '*(maxBlankSize-1))
+
+        if nums == 0: blank = ' '
+        else:
+            xNum   += blank
+            blank   = ' '*((returnSquare(nums)*2)-1)
+            startTo = 1
+
+        for array in range(startTo, int(MAL/returnSquare(nums))+plusTo, 1): xNum += str(array)[-1] + blank
+        xNum += "\n"
+
+    Display += xNum
 
     for num, line in enumerate(grid):
         ln = (str(num) + ' '*(maxBlankSize - len(str(num))))
@@ -152,8 +172,10 @@ def openTile(y, x, grid, tileGrid):
                     if grid[row][column] == icons["mine"]:
                         grid[row][column] = icons["exploded"]
                         isMineExploded = True
-                    tileGrid[row][column] = grid[row][column]
-                    continue
+                    elif grid[row][column] == '.': openTile(row, column, grid, tileGrid)
+                    else:
+                        tileGrid[row][column] = grid[row][column]
+                        continue
 
             if grid[row][column] == icons["mine"] or tileGrid[row][column] != '■': continue
 
@@ -174,13 +196,15 @@ def checkAllTiles(end=0) -> int:
         return 0
     
     elif end == 1:
-        correct = 0
+        correct   = 0
+        TileCount = 0
         for row in range(len(grid)):
             for column in range(len(grid[row])):
+                if tileGrid[row][column] in ['■', icons["flag"]] and grid[row][column] == icons["mine"]: TileCount += 1
                 if tileGrid[row][column] == icons["flag"] and grid[row][column] == icons["mine"]:
                     correct += 1
 
-        return 1 if correct == mineSize else 2
+        return 1 if correct == mineSize or TileCount == mineSize else 2
 
 def killGame(Type=0):
     global grid
@@ -207,7 +231,7 @@ def init():
             clear()
             Input = input(text)
             try:
-                if int(Input) <= 0: continue
+                if Type != "mine" and int(Input) <= 1: continue
                 if Type == "mine":
                     if int(Input) >= y*x: continue
             except: continue
