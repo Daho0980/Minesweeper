@@ -265,7 +265,7 @@ while True:
     if commandLine[-1] == "dig":
         if grid[Cy][Cx] == icons["mine"] and tileGrid[Cy][Cx] == '■': killGame(); break
 
-        openTile(y=Cy, x=Cx, grid=grid, tileGrid=tileGrid)
+        if tileGrid[Cy][Cx] == '■': openTile(y=Cy, x=Cx, grid=grid, tileGrid=tileGrid)
         if isMineExploded == True: killGame(); break
 
     elif commandLine[-1] == "flag":
