@@ -200,7 +200,7 @@ def checkAllTiles(end=0) -> int:
         TileCount = 0
         for row in range(len(grid)):
             for column in range(len(grid[row])):
-                if tileGrid[row][column] in ['■', icons["flag"]] and grid[row][column] == icons["mine"]: TileCount += 1
+                if tileGrid[row][column] in ['■', icons["flag"]]: TileCount += 1
                 if tileGrid[row][column] == icons["flag"] and grid[row][column] == icons["mine"]:
                     correct += 1
 
