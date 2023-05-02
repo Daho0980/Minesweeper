@@ -25,6 +25,7 @@ icons = {
 TITLE = " /|,/._  _    _    _  _  _  _  _\n/  /// //_' _\|/|//_'/_'/_//_'/ \n                       /   "
 
 # System values
+defeatMessage = f"{colorKey[3]}(실패!){colorKey['end']}"
 isMineExploded = False
 y, x = 0, 0
 
@@ -212,6 +213,7 @@ def checkAllTiles(end=0) -> int:
 
 def killGame(Type=0):
     global grid
+    global defeatMessage
 
     clear()
     if isMineExploded == False and Type == 0: grid[Cy][Cx] = icons["exploded"]
@@ -221,7 +223,7 @@ def killGame(Type=0):
     if finish != 2: print(returnGridGraphic(grid))
     match finish:
         case 0: print(f"\n저런...")
-        case 1: print(f"\n어케함?"); return True
+        case 1: print(f"\n어케함?"); defeatMessage = ""; return True
 
 def intro():
     clear()
@@ -253,6 +255,7 @@ intro()
 My, Mx, mineSize = init()
 
 grid, tileGrid = makeGrid(y=My, x=Mx, mineSize=mineSize), makeTileGrid(y=My, x=Mx)
+start = time.time()
 
 while True:
     clear()
@@ -280,3 +283,13 @@ while True:
         elif target == '■': tileGrid[Cy][Cx] = icons["flag"]
     
     if killGame(1) == True: break
+
+end = time.time()
+# print(f"\n\n걸린 시간 : {colorKey[3]}{end - start:.2f}{colorKey['end']} 초")
+# print(f"칸 크기 : {colorKey[3]}{My} x {Mx}{colorKey['end']} ({My*Mx}칸)")
+# print(f"지뢰 개수 : {colorKey[3]}{mineSize}{colorKey['end']} 개")
+print(f"""
+\n\n걸린 시간 : {colorKey[2]}{end - start:.2f}{colorKey['end']} 초 {defeatMessage}
+칸 크기 : {colorKey[2]}{My} x {Mx}{colorKey['end']} ({My*Mx}칸)
+지뢰 개수 : {colorKey[2]}{mineSize}{colorKey['end']} 개""")
+
