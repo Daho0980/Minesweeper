@@ -303,7 +303,6 @@ end = time.time()
 print(f"""
 \n
 걸린 시간 :      {colorKey[2]}{end - start:.2f}{colorKey['end']} 초 {defeatMessage}
-칸 크기 :        {colorKey[2]}{My} x {Mx}{colorKey['end']} ({My*Mx}칸)
-총 지뢰 개수 :   {colorKey[2]}{mineSize}{colorKey['end']} 개
-찾은 지뢰 개수 : {colorKey[3]}{totalMineFound}{colorKey['end']} 개""")
+칸 크기 :        {colorKey[2]}{My} {colorKey['end']}x {colorKey[2]}{Mx}{colorKey['end']} ({My*Mx}칸)
+찾은 지뢰 개수 : {colorKey[2]}{mineSize}{colorKey['end']} 개 중 {colorKey[3]}{totalMineFound}{colorKey['end']} 개""")
 
