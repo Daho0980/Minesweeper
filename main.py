@@ -26,6 +26,7 @@ TITLE = " /|,/._  _    _    _  _  _  _  _\n/  /// //_' _\|/|//_'/_'/_//_'/ \n   
 
 # System values
 isMineExploded = False
+y, x = 0, 0
 
 # System functions
 def clear(): os.system('clear' if os.name == 'posix' else 'cls')
@@ -42,11 +43,11 @@ def escapeAnsi(line):
 # Game functions
 def setNumber(y, x, lu, u, ru, l, r, ld, d, rd, grid):
     posS = [lu, u, ru, l, r, ld, d, rd]
-    aroundMineSize = 0
+    mineCount = 0
     for pos in posS:
-        if grid[y+pos[0]][x+pos[1]] == icons["mine"]: aroundMineSize += 1
+        if grid[y+pos[0]][x+pos[1]] == icons["mine"]: mineCount += 1
 
-    return f"{colorKey[aroundMineSize]}{aroundMineSize}\033[0m" if aroundMineSize > 0 else '.'
+    return f"{colorKey[mineCount]}{mineCount}\033[0m" if mineCount > 0 else '.'
 
 def makeGrid(y:int, x:int, mineSize:int) -> list:
     if y*x < mineSize: raise Exception("너무 커욧")
@@ -121,16 +122,16 @@ def returnGridGraphic(grid):
         return output
     
     Display = ""
-    maxBlankSize = len(str(len(grid)))+1
+    maxBlankSize = len(str(len(grid)-1))+1
 
     # numberLine_X
     xNum = ""
     MAL  = len(max(grid)) # Max Array Len
 
     for nums in range(len(str(MAL)), -1, -1):
-        startTo  = 0
-        plusTo   = 1 if MAL%returnSquare(nums) != 0 else 0
-        blank    = ' '*(returnSquare(nums)*2) if nums != 0 else ''
+        startTo   = 0
+        plusTo    = 1 if MAL%returnSquare(nums) != 0 else 0
+        blank     = ' '*(returnSquare(nums)*2) if nums != 0 else ''
 
         xNum    += (f"{colorKey[3]}%{colorKey['end']}" + ' '*(maxBlankSize-1)) if nums == 0 else (" " + ' '*(maxBlankSize-1))
 
@@ -140,13 +141,16 @@ def returnGridGraphic(grid):
             blank   = ' '*((returnSquare(nums)*2)-1)
             startTo = 1
 
-        for array in range(startTo, int(MAL/returnSquare(nums))+plusTo, 1): xNum += str(array)[-1] + blank
+        for array in range(startTo, int(MAL/returnSquare(nums))+plusTo, 1):
+            highlight = "\033[41m" if array == x and nums == 0 else ""
+            xNum += highlight + str(array)[-1] + "\033[0m" + blank
         xNum += "\n"
 
     Display += xNum
 
     for num, line in enumerate(grid):
-        ln = (str(num) + ' '*(maxBlankSize - len(str(num))))
+        highlight = "\033[41m" if num == y else ""
+        ln = highlight + str(num) + "\033[0m" + ' '*(maxBlankSize - len(str(num)))
         Display += ln + ' '.join(line) + "\n"
     return Display
 
@@ -224,30 +228,31 @@ def intro():
     input(f"\n\n\n\n\n{colorKey[3]}{TITLE}{colorKey['end']}\n\n          PRESS ENTER")
 
 def init():
-    global y, x, mineSize
 
-    def question(text:str, Type:str=None):
+    def question(text:str, Type:str=None, opy:int=None, opx:int=None) -> int:
         while True:
             clear()
             Input = input(text)
             try:
                 if Type != "mine" and int(Input) <= 1: continue
                 if Type == "mine":
-                    if int(Input) >= y*x: continue
+                    if int(Input) >= opy*opx: continue
             except: continue
             else: break
         return int(Input)
     
-    y        = question("y값을 입력해주세요 : ")
-    x        = question("x값을 입력해주세요 : ")
-    mineSize = question(f"지뢰의 개수를 정해주세요({y*x}개 보다 같거나 크면 안됩니다!) : ", "mine")
+    outputY  = question("y값을 입력해주세요 : ")
+    outputX  = question("x값을 입력해주세요 : ")
+    outputMS = question(f"지뢰의 개수를 정해주세요({outputY*outputX}개 보다 같거나 크면 안됩니다!) : ", Type="mine", opy=outputY, opx=outputX)
+
+    return outputY, outputX, outputMS
 
 
 sys.setrecursionlimit(10**6)
 intro()
-init()
+My, Mx, mineSize = init()
 
-grid, tileGrid = makeGrid(y=y, x=x, mineSize=mineSize), makeTileGrid(y=y, x=x)
+grid, tileGrid = makeGrid(y=My, x=Mx, mineSize=mineSize), makeTileGrid(y=My, x=Mx)
 
 while True:
     clear()
@@ -262,6 +267,7 @@ while True:
     if len(commandLine) < 3 or len(commandLine) > 3: continue
     
     Cy, Cx = int(commandLine[0]), int(commandLine[1])
+    y, x = Cy, Cx
     if commandLine[-1] == "dig":
         if grid[Cy][Cx] == icons["mine"] and tileGrid[Cy][Cx] == '■': killGame(); break
 
