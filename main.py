@@ -192,6 +192,17 @@ def openTile(y, x, grid, tileGrid):
 def checkAllTiles(end=0) -> int:
     global grid, tileGrid
     global mineSize
+    global totalMineFound
+
+    def checkUnderFlag():
+        count = 0
+        for row in range(len(grid)):
+            for column in range(len(grid[row])):
+                if tileGrid[row][column] == icons["flag"] and grid[row][column] == icons["mine"]:
+                    count += 1
+        return count
+
+    totalMineFound = checkUnderFlag()
 
     if end == 0:
         for row in range(len(grid)):
@@ -253,6 +264,7 @@ def init():
 sys.setrecursionlimit(10**6)
 intro()
 My, Mx, mineSize = init()
+totalMineFound = 0
 
 grid, tileGrid = makeGrid(y=My, x=Mx, mineSize=mineSize), makeTileGrid(y=My, x=Mx)
 start = time.time()
@@ -289,7 +301,9 @@ end = time.time()
 # print(f"칸 크기 : {colorKey[3]}{My} x {Mx}{colorKey['end']} ({My*Mx}칸)")
 # print(f"지뢰 개수 : {colorKey[3]}{mineSize}{colorKey['end']} 개")
 print(f"""
-\n\n걸린 시간 : {colorKey[2]}{end - start:.2f}{colorKey['end']} 초 {defeatMessage}
-칸 크기 : {colorKey[2]}{My} x {Mx}{colorKey['end']} ({My*Mx}칸)
-지뢰 개수 : {colorKey[2]}{mineSize}{colorKey['end']} 개""")
+\n
+걸린 시간 :      {colorKey[2]}{end - start:.2f}{colorKey['end']} 초 {defeatMessage}
+칸 크기 :        {colorKey[2]}{My} x {Mx}{colorKey['end']} ({My*Mx}칸)
+총 지뢰 개수 :   {colorKey[2]}{mineSize}{colorKey['end']} 개
+찾은 지뢰 개수 : {colorKey[3]}{totalMineFound}{colorKey['end']} 개""")
 
