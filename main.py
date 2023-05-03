@@ -25,7 +25,7 @@ icons = {
 TITLE = " /|,/._  _    _    _  _  _  _  _\n/  /// //_' _\|/|//_'/_'/_//_'/ \n                       /   "
 
 # System values
-defeatMessage = f"{colorKey[3]}(실패!){colorKey['end']}"
+defeatMessage  = f"{colorKey[3]}(실패!){colorKey['end']}"
 isMineExploded = False
 y, x = 0, 0
 
@@ -50,6 +50,32 @@ def setNumber(y, x, lu, u, ru, l, r, ld, d, rd, grid):
 
     return f"{colorKey[mineCount]}{mineCount}\033[0m" if mineCount > 0 else '.'
 
+def peripheralSensing(y, x, grid):
+
+    posS = [
+        [-1, -1], [-1, 0], [-1, 1],
+        [0, -1],           [0, 1],
+        [1, -1],  [1, 0],  [1, 1]
+        ]
+                
+    if y == 0:
+        posS[0], posS[1], posS[2] = [0, 0], [0, 0], [0, 0]
+
+        if x == 0:                posS[3], posS[5] = [0, 0], [0, 0]
+        if x == len(grid[y])-1: posS[4], posS[7] = [0, 0], [0, 0]
+
+    elif y == len(grid)-1:
+        posS[5], posS[6], posS[7] = [0, 0], [0, 0], [0, 0]
+
+        if x == 0:                posS[0], posS[3] = [0, 0], [0, 0]
+        if x == len(grid[y])-1: posS[2], posS[4] = [0, 0], [0, 0]
+
+    elif x == 0: posS[0], posS[3], posS[5] = [0, 0], [0, 0], [0, 0]
+
+    elif x == len(grid[y])-1: posS[2], posS[4], posS[7] = [0, 0], [0, 0], [0, 0]
+
+    return posS
+
 def makeGrid(y:int, x:int, mineSize:int) -> list:
     if y*x < mineSize: raise Exception("너무 커욧")
 
@@ -67,27 +93,7 @@ def makeGrid(y:int, x:int, mineSize:int) -> list:
     for row in range(y):
         for column in range(x):
             if grid[row][column] != icons["mine"]:
-                posS = [
-                             [-1, -1], [-1, 0], [-1, 1],
-                             [0, -1],           [0, 1],
-                             [1, -1],  [1, 0],  [1, 1]
-                            ]
-                
-                if row == 0:
-                    posS[0], posS[1], posS[2] = [0, 0], [0, 0], [0, 0]
-
-                    if column == 0:                posS[3], posS[5] = [0, 0], [0, 0]
-                    if column == len(grid[row])-1: posS[4], posS[7] = [0, 0], [0, 0]
-
-                elif row == len(grid)-1:
-                    posS[5], posS[6], posS[7] = [0, 0], [0, 0], [0, 0]
-
-                    if column == 0:                posS[0], posS[3] = [0, 0], [0, 0]
-                    if column == len(grid[row])-1: posS[2], posS[4] = [0, 0], [0, 0]
-
-                elif column == 0: posS[0], posS[3], posS[5] = [0, 0], [0, 0], [0, 0]
-
-                elif column == len(grid[row])-1: posS[2], posS[4], posS[7] = [0, 0], [0, 0], [0, 0]
+                posS = peripheralSensing(row, column, grid)
 
                 grid[row][column] = setNumber(row, column,
                                               posS[0], posS[1], posS[2], posS[3], posS[4], posS[5], posS[6], posS[7],
@@ -155,8 +161,9 @@ def returnGridGraphic(grid):
         Display += ln + ' '.join(line) + "\n"
     return Display
 
-def openTile(y, x, grid, tileGrid):
+def openTile(y:int, x:int):
     global isMineExploded
+    global grid, tileGrid
 
     isDigAround = False if tileGrid[y][x] == '■' else True
     tileGrid[y][x] = grid[y][x]
@@ -177,7 +184,7 @@ def openTile(y, x, grid, tileGrid):
                     if grid[row][column] == icons["mine"]:
                         grid[row][column] = icons["exploded"]
                         isMineExploded = True
-                    elif grid[row][column] == '.': openTile(row, column, grid, tileGrid)
+                    elif grid[row][column] == '.': openTile(row, column)
                     else:
                         tileGrid[row][column] = grid[row][column]
                         continue
@@ -187,7 +194,29 @@ def openTile(y, x, grid, tileGrid):
             if grid[y][x] != '.':
                 if grid[row][column] != '.': continue
 
-            if isDigAround == False: openTile(row, column, grid, tileGrid)
+            if isDigAround == False: openTile(row, column)
+
+def flagTile(y, x):
+    global grid, tileGrid
+
+    print("Program started")
+    target = tileGrid[y][x] 
+    
+    if   target == '■':          tileGrid[y][x] = icons["flag"]; print("case 1 progressed")
+    elif target == icons["flag"]: tileGrid[y][x] = '■'; print("case 2 progressed")
+    else:
+        print("case 3 progressed")
+        posS         = peripheralSensing(y, x, grid)
+        unDIggedTile = 0
+        for i in posS:
+            if tileGrid[y+i[0]][x+i[1]] in [icons["flag"], '■']: unDIggedTile += 1
+
+        print(f"{escapeAnsi(tileGrid[y][x])}, {unDIggedTile}")
+        if int(escapeAnsi(tileGrid[y][x])) == unDIggedTile:
+            for i in posS:
+                target = tileGrid[y+i[0]][x+i[1]]
+
+                if target == '■': tileGrid[y+i[0]][x+i[1]] = icons["flag"]
 
 def checkAllTiles(end=0) -> int:
     global grid, tileGrid
@@ -286,23 +315,20 @@ while True:
     if commandLine[-1] == "dig":
         if grid[Cy][Cx] == icons["mine"] and tileGrid[Cy][Cx] == '■': killGame(); break
 
-        if tileGrid[Cy][Cx] != icons["flag"]: openTile(y=Cy, x=Cx, grid=grid, tileGrid=tileGrid)
+        if tileGrid[Cy][Cx] != icons["flag"]: openTile(Cy, Cx)
         if isMineExploded == True: killGame(); break
 
-    elif commandLine[-1] == "flag":
-        target = tileGrid[Cy][Cx]
-        if   target == icons["flag"]: tileGrid[Cy][Cx] = '■'
-        elif target == '■': tileGrid[Cy][Cx] = icons["flag"]
+    elif commandLine[-1] == "flag": flagTile(Cy, Cx)
     
     if killGame(1) == True: break
 
 end = time.time()
-# print(f"\n\n걸린 시간 : {colorKey[3]}{end - start:.2f}{colorKey['end']} 초")
-# print(f"칸 크기 : {colorKey[3]}{My} x {Mx}{colorKey['end']} ({My*Mx}칸)")
-# print(f"지뢰 개수 : {colorKey[3]}{mineSize}{colorKey['end']} 개")
+
+explodePos = f"터진 지뢰 위치 :  y : {colorKey[3]}{y}{colorKey['end']}, x : {colorKey[3]}{x}{colorKey['end']}\n\n" if totalMineFound != mineSize else ""
+
 print(f"""
 \n
-걸린 시간 :      {colorKey[2]}{end - start:.2f}{colorKey['end']} 초 {defeatMessage}
+{explodePos}걸린 시간 :      {colorKey[2]}{end - start:.2f}{colorKey['end']} 초 {defeatMessage}
 칸 크기 :        {colorKey[2]}{My} {colorKey['end']}x {colorKey[2]}{Mx}{colorKey['end']} ({My*Mx}칸)
 찾은 지뢰 개수 : {colorKey[2]}{mineSize}{colorKey['end']} 개 중 {colorKey[3]}{totalMineFound}{colorKey['end']} 개""")
 
