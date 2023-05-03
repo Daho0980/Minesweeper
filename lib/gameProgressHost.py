@@ -33,4 +33,4 @@ def killGame(Type=0, Cy=0, Cx=0):
     if finish != 2: print(grp.returnGridGraphic(s.grid))
     match finish:
         case 0: print(f"\n저런...")
-        case 1: print(f"\n어케함?"); s.defeatMessage = ""; return True
+        case 1: print(f"\n어케함?"); return True

@@ -20,8 +20,6 @@ icons = {
 
 TITLE = " /|,/._  _    _    _  _  _  _  _\n/  /// //_' _\|/|//_'/_'/_//_'/ \n                       /   "
 
-defeatMessage  = f"{colorKey[3]}(실패!){colorKey['end']}"
-
 # Systems
 y, x           = 0, 0
 totalMineFound = 0

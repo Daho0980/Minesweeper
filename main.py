@@ -49,7 +49,7 @@ explodePos = f"터진 지뢰 위치 :  y : {s.colorKey[3]}{s.y}{s.colorKey['end'
 
 print(f"""
 \n
-{explodePos}걸린 시간 :      {s.colorKey[2]}{end - start:.2f}{s.colorKey['end']} 초 {s.defeatMessage}
+{explodePos}걸린 시간 :      {s.colorKey[2]}{end - start:.2f}{s.colorKey['end']} 초
 칸 크기 :        {s.colorKey[2]}{s.My} {s.colorKey['end']}x {s.colorKey[2]}{s.Mx}{s.colorKey['end']} ({s.My*s.Mx}칸)
 찾은 지뢰 개수 : {s.colorKey[2]}{s.mineSize}{s.colorKey['end']} 개 중 {s.colorKey[3]}{s.totalMineFound}{s.colorKey['end']} 개""")
 
