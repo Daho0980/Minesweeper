@@ -6,9 +6,9 @@ from   lib.gridRelated import graphic, system
 from   lib.system import tools
 
 ti, grps, gph = tileInteractions, graphics, gameProgressHost
-s = status
-grp, syst = graphic, system
-tl = tools
+s             = status
+grp, syst     = graphic, system
+tl            = tools
 
 # Game functions
 

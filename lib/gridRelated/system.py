@@ -107,5 +107,6 @@ def checkAllTiles(end=0) -> int:
                 if s.tileGrid[row][column] in ['■', s.icons["flag"]]: TileCount += 1
                 if s.tileGrid[row][column] == s.icons["flag"] and s.grid[row][column] == s.icons["mine"]:
                     correct += 1
+        if TileCount == s.mineSize: s.totalMineFound = s.mineSize
 
         return 1 if correct == s.mineSize or TileCount == s.mineSize else 2
