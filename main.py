@@ -1,297 +1,47 @@
-import random
-import os
 import sys
-import re
 import time
-from lib.data import status as s
+from   lib        import graphics, tileInteractions, gameProgressHost
+from   lib.data   import status
+from   lib.gridRelated import graphic, system
+from   lib.system import tools
 
-# System functions
-def clear(): os.system('clear' if os.name == 'posix' else 'cls')
-
-def inp(string, maxInputSize:int='infinite'):
-    print(string, end='')
-    Input = sys.stdin.readline() if maxInputSize == 'infinite' else sys.stdin.readline(maxInputSize)
-    return Input[:-1] if Input.endswith('\n') else Input
-
-def escapeAnsi(line):
-    ansi_escape =re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-    return ansi_escape.sub('', line)
+ti, grps, gph = tileInteractions, graphics, gameProgressHost
+s = status
+grp, syst = graphic, system
+tl = tools
 
 # Game functions
-def setNumber(y, x, lu, u, ru, l, r, ld, d, rd, grid):
-    posS = [lu, u, ru, l, r, ld, d, rd]
-    mineCount = 0
-    for pos in posS:
-        if grid[y+pos[0]][x+pos[1]] == s.icons["mine"]: mineCount += 1
-
-    return f"{s.colorKey[mineCount]}{mineCount}\033[0m" if mineCount > 0 else '.'
-
-def peripheralSensing(y, x, grid):
-
-    posS = [
-        [-1, -1], [-1, 0], [-1, 1],
-        [0, -1],           [0, 1],
-        [1, -1],  [1, 0],  [1, 1]
-        ]
-                
-    if y == 0:
-        posS[0], posS[1], posS[2] = [0, 0], [0, 0], [0, 0]
-
-        if x == 0:                posS[3], posS[5] = [0, 0], [0, 0]
-        if x == len(grid[y])-1: posS[4], posS[7] = [0, 0], [0, 0]
-
-    elif y == len(grid)-1:
-        posS[5], posS[6], posS[7] = [0, 0], [0, 0], [0, 0]
-
-        if x == 0:                posS[0], posS[3] = [0, 0], [0, 0]
-        if x == len(grid[y])-1: posS[2], posS[4] = [0, 0], [0, 0]
-
-    elif x == 0: posS[0], posS[3], posS[5] = [0, 0], [0, 0], [0, 0]
-
-    elif x == len(grid[y])-1: posS[2], posS[4], posS[7] = [0, 0], [0, 0], [0, 0]
-
-    return posS
-
-def makeGrid(y:int, x:int, mineSize:int) -> list:
-    if y*x < mineSize: raise Exception("너무 커욧")
-
-    grid = []
-    for row in range(y):
-        grid.append([])
-        for column in range(x): grid[row].append('.')
-
-    count = 0
-    while count < mineSize:
-        Ry, Rx = random.randrange(0, y), random.randrange(0, x)
-        if grid[Ry][Rx] == '.':   grid[Ry][Rx] = s.icons["mine"]; count += 1
-        elif grid[Ry][Rx] == s.icons["mine"]: continue
-
-    for row in range(y):
-        for column in range(x):
-            if grid[row][column] != s.icons["mine"]:
-                posS = peripheralSensing(row, column, grid)
-
-                grid[row][column] = setNumber(row, column,
-                                              posS[0], posS[1], posS[2], posS[3], posS[4], posS[5], posS[6], posS[7],
-                                              grid)
-
-    return grid
-
-def makeTileGrid(y:int, x:int) -> list:
-    grid = []
-    for row in range(y):
-        grid.append([])
-        for column in range(x): grid[row].append('■')
-
-    return grid
-
-
-def calculateDensity(grid):
-    fullCount, mineCount = 0, 0
-    density              = 0
-
-    for line in grid:
-        for tile in line:
-            fullCount += 1
-            if tile == s.icons["mine"]: mineCount += 1
-
-    density = (mineCount/fullCount)*100
-    return int(density)
-
-def returnGridGraphic(grid):
-    def returnSquare(count) -> int:
-        output = 1
-        for i in range(count+1): output *= 1 if i == 0 else 10
-        return output
-    
-    Display = ""
-    maxBlankSize = len(str(len(grid)-1))+1
-
-    # numberLine_X
-    xNum = ""
-    MAL  = len(max(grid)) # Max Array Len
-
-    for nums in range(len(str(MAL)), -1, -1):
-        startTo   = 0
-        plusTo    = 1 if MAL%returnSquare(nums) != 0 else 0
-        blank     = ' '*(returnSquare(nums)*2) if nums != 0 else ''
-
-        xNum    += (f"{s.colorKey[3]}%{s.colorKey['end']}" + ' '*(maxBlankSize-1)) if nums == 0 else (" " + ' '*(maxBlankSize-1))
-
-        if nums == 0: blank = ' '
-        else:
-            xNum   += blank
-            blank   = ' '*((returnSquare(nums)*2)-1)
-            startTo = 1
-
-        for array in range(startTo, int(MAL/returnSquare(nums))+plusTo, 1):
-            highlight = "\033[41m" if array == s.x and nums == 0 else ""
-            xNum += highlight + str(array)[-1] + "\033[0m" + blank
-        xNum += "\n"
-
-    Display += xNum
-
-    for num, line in enumerate(grid):
-        highlight = "\033[41m" if num == s.y else ""
-        ln = highlight + str(num) + "\033[0m" + ' '*(maxBlankSize - len(str(num)))
-        Display += ln + ' '.join(line) + "\n"
-    return Display
-
-def openTile(y:int, x:int):
-    global grid, tileGrid
-
-    isDigAround = False if tileGrid[y][x] == '■' else True
-    tileGrid[y][x] = grid[y][x]
-    mineLen        = 0
-
-    for r1 in range(y-1, y+2):
-        for c1 in range(x-1, x+2):
-            if r1 < 0 or r1 > len(grid)-1 or c1 < 0 or c1 > len(grid[r1])-1: continue
-
-            if tileGrid[r1][c1] == s.icons["flag"]: mineLen += 1
-
-    for row in range(y-1, y+2):
-        for column in range(x-1, x+2):
-            if row < 0 or row > len(grid)-1 or column < 0 or column > len(grid[row])-1: continue
-
-            if isDigAround and grid[y][x] not in ['.', s.icons["mine"], s.icons["exploded"]] and int(escapeAnsi(tileGrid[y][x])) == mineLen:
-                if tileGrid[row][column] == '■':
-                    if grid[row][column] == s.icons["mine"]:
-                        grid[row][column] = s.icons["exploded"]
-                        s.isMineExploded = True
-                    elif grid[row][column] == '.': openTile(row, column)
-                    else:
-                        tileGrid[row][column] = grid[row][column]
-                        continue
-
-            if grid[row][column] == s.icons["mine"] or tileGrid[row][column] != '■': continue
-
-            if grid[y][x] != '.':
-                if grid[row][column] != '.': continue
-
-            if isDigAround == False: openTile(row, column)
-
-def flagTile(y, x):
-    global grid, tileGrid
-
-    print("Program started")
-    target = tileGrid[y][x] 
-    
-    if   target == '■':          tileGrid[y][x] = s.icons["flag"]; print("case 1 progressed")
-    elif target == s.icons["flag"]: tileGrid[y][x] = '■'; print("case 2 progressed")
-    else:
-        print("case 3 progressed")
-        posS         = peripheralSensing(y, x, grid)
-        unDIggedTile = 0
-        for i in posS:
-            if tileGrid[y+i[0]][x+i[1]] in [s.icons["flag"], '■']: unDIggedTile += 1
-
-        print(f"{escapeAnsi(tileGrid[y][x])}, {unDIggedTile}")
-        if int(escapeAnsi(tileGrid[y][x])) == unDIggedTile:
-            for i in posS:
-                target = tileGrid[y+i[0]][x+i[1]]
-
-                if target == '■': tileGrid[y+i[0]][x+i[1]] = s.icons["flag"]
-
-def checkAllTiles(end=0) -> int:
-    global grid, tileGrid
-
-    def checkUnderFlag():
-        count = 0
-        for row in range(len(grid)):
-            for column in range(len(grid[row])):
-                if tileGrid[row][column] == s.icons["flag"] and grid[row][column] == s.icons["mine"]:
-                    count += 1
-        return count
-
-    s.totalMineFound = checkUnderFlag()
-
-    if end == 0:
-        for row in range(len(grid)):
-            for column in range(len(grid[row])):
-                if tileGrid[row][column] == s.icons["flag"] and grid[row][column] != s.icons["mine"]:
-                    grid[row][column] = s.icons["notMine"]
-        return 0
-    
-    elif end == 1:
-        correct   = 0
-        TileCount = 0
-        for row in range(len(grid)):
-            for column in range(len(grid[row])):
-                if tileGrid[row][column] in ['■', s.icons["flag"]]: TileCount += 1
-                if tileGrid[row][column] == s.icons["flag"] and grid[row][column] == s.icons["mine"]:
-                    correct += 1
-
-        return 1 if correct == s.mineSize or TileCount == s.mineSize else 2
-
-def killGame(Type=0):
-    global grid
-
-    clear()
-    if s.isMineExploded == False and Type == 0: grid[Cy][Cx] = s.icons["exploded"]
-
-    finish = checkAllTiles(Type)
-
-    if finish != 2: print(returnGridGraphic(grid))
-    match finish:
-        case 0: print(f"\n저런...")
-        case 1: print(f"\n어케함?"); s.defeatMessage = ""; return True
-
-def intro():
-    clear()
-    input(f"\n\n\n\n\n{s.colorKey[3]}{s.TITLE}{s.colorKey['end']}\n\n          PRESS ENTER")
-
-def init():
-
-    def question(text:str, Type:str=None, opy:int=None, opx:int=None) -> int:
-        while True:
-            clear()
-            Input = input(text)
-            try:
-                if Type != "mine" and int(Input) <= 1: continue
-                if Type == "mine":
-                    if int(Input) >= opy*opx: continue
-            except: continue
-            else: break
-        return int(Input)
-    
-    outputY  = question("y값을 입력해주세요 : ")
-    outputX  = question("x값을 입력해주세요 : ")
-    outputMS = question(f"지뢰의 개수를 정해주세요({outputY*outputX}개 보다 같거나 크면 안됩니다!) : ", Type="mine", opy=outputY, opx=outputX)
-
-    return outputY, outputX, outputMS
-
 
 sys.setrecursionlimit(10**6)
-intro()
-s.My, s.Mx, s.mineSize = init()
+grps.intro()
+s.My, s.Mx, s.mineSize = gph.init()
 
-grid, tileGrid = makeGrid(y=s.My, x=s.Mx, mineSize=s.mineSize), makeTileGrid(y=s.My, x=s.Mx)
+s.grid, s.tileGrid = syst.makeGrid(y=s.My, x=s.Mx, mineSize=s.mineSize), syst.makeTileGrid(y=s.My, x=s.Mx)
 start = time.time()
 
 while True:
-    clear()
-    print(returnGridGraphic(tileGrid))
+    tl.clear()
+    print(grp.returnGridGraphic(s.tileGrid))
     Input = input("\n위치를 입력해주세요(y x command) : ")
     commandLine = Input.split(' ')
 
     try:
         if int(commandLine[0]) < 0 or int(commandLine[1]) < 0 or\
-           int(commandLine[0]) > len(grid) or int(commandLine[1]) > len(grid[int(commandLine[0])]): continue
+           int(commandLine[0]) > len(s.grid) or int(commandLine[1]) > len(s.grid[int(commandLine[0])]): continue
     except: continue
     if len(commandLine) < 3 or len(commandLine) > 3: continue
     
     Cy, Cx = int(commandLine[0]), int(commandLine[1])
     s.y, s.x = Cy, Cx
     if commandLine[-1] == "dig":
-        if grid[Cy][Cx] == s.icons["mine"] and tileGrid[Cy][Cx] == '■': killGame(); break
+        if s.grid[Cy][Cx] == s.icons["mine"] and s.tileGrid[Cy][Cx] == '■': gph.killGame(); break
 
-        if tileGrid[Cy][Cx] != s.icons["flag"]: openTile(Cy, Cx)
-        if s.isMineExploded == True: killGame(); break
+        if s.tileGrid[Cy][Cx] != s.icons["flag"]: ti.openTile(Cy, Cx)
+        if s.isMineExploded == True: gph.killGame(); break
 
-    elif commandLine[-1] == "flag": flagTile(Cy, Cx)
+    elif commandLine[-1] == "flag": ti.flagTile(Cy, Cx)
     
-    if killGame(1) == True: break
+    if gph.killGame(1) == True: break
 
 end = time.time()
 

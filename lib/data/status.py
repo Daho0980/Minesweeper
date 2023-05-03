@@ -30,3 +30,7 @@ isMineExploded = False
 My       = 0
 Mx       = 0
 mineSize = 0
+
+# grids
+grid     = []
+tileGrid = []
