@@ -1,9 +1,9 @@
 import sys
 import time
-from   lib        import graphics, tileInteractions, gameProgressHost
-from   lib.data   import status
+from   lib             import graphics, tileInteractions, gameProgressHost
+from   lib.data        import status
 from   lib.gridRelated import graphic, system
-from   lib.system import tools
+from   lib.system      import tools
 
 ti, grps, gph = tileInteractions, graphics, gameProgressHost
 s             = status
@@ -15,8 +15,8 @@ tl            = tools
 sys.setrecursionlimit(10**6)
 grps.intro()
 s.My, s.Mx, s.mineSize = gph.init()
-
 s.grid, s.tileGrid = syst.makeGrid(y=s.My, x=s.Mx, mineSize=s.mineSize), syst.makeTileGrid(y=s.My, x=s.Mx)
+
 start = time.time()
 
 while True:
