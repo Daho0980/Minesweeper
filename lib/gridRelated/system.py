@@ -2,8 +2,9 @@ import random
 from   lib.data import status as s
 
 def setNumber(y, x, lu, u, ru, l, r, ld, d, rd, grid):
-    posS = [lu, u, ru, l, r, ld, d, rd]
+    posS      = [lu, u, ru, l, r, ld, d, rd]
     mineCount = 0
+    
     for pos in posS:
         if grid[y+pos[0]][x+pos[1]] == s.icons["mine"]: mineCount += 1
 

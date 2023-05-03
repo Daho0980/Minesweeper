@@ -1,6 +1,6 @@
-from lib.data   import status as s
+from lib.data        import status          as s
 from lib.gridRelated import graphic, system
-from lib.system import tools as tl
+from lib.system      import tools           as tl
 
 grp, syst = graphic, system
 

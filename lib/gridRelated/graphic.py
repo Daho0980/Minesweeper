@@ -6,7 +6,7 @@ def returnGridGraphic(grid):
         for i in range(count+1): output *= 1 if i == 0 else 10
         return output
     
-    Display = ""
+    Display      = ""
     maxBlankSize = len(str(len(grid)-1))+1
 
     # numberLine_X
@@ -35,6 +35,7 @@ def returnGridGraphic(grid):
 
     for num, line in enumerate(grid):
         highlight = "\033[41m" if num == s.y else ""
-        ln = highlight + str(num) + "\033[0m" + ' '*(maxBlankSize - len(str(num)))
-        Display += ln + ' '.join(line) + "\n"
+        ln        = highlight + str(num) + "\033[0m" + ' '*(maxBlankSize - len(str(num)))
+        Display  += ln + ' '.join(line) + "\n"
+        
     return Display
