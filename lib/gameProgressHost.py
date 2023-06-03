@@ -26,11 +26,11 @@ def init():
 
 def killGame(Type=0, Cy=0, Cx=0):
     tl.clear()
-    if s.isMineExploded == False and Type == 0: s.grid[Cy][Cx] = s.icons["exploded"]
+    if s.isMineExploded == False and Type == 0 and s.mg[Cy][Cx][0] == s.icons["mine"]: s.mg[Cy][Cx][0] = s.icons["exploded"]
 
     finish = syst.checkAllTiles(Type)
 
-    if finish != 2: print(grp.returnGridGraphic(s.grid))
+    if finish != 2: print(grp.returnGridGraphic(syst.selectGridType(grid=s.mg, Type=0)))
     match finish:
         case 0: print(f"\n저런...")
         case 1: print(f"\n어케함?"); return True

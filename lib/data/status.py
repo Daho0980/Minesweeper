@@ -32,3 +32,4 @@ mineSize = 0
 # grids
 grid     = []
 tileGrid = []
+mg = []
