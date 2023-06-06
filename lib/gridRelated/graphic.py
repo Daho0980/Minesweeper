@@ -26,14 +26,14 @@ def returnGridGraphic(grid):
             startTo = 1
 
         for array in range(startTo, int(MAL/returnSquare(nums))+plusTo, 1):
-            highlight = "\033[41m" if array == int(s.x/returnSquare(nums)) else ""
+            highlight = s.bgcolorKey[3] if array == int(s.x/returnSquare(nums)) else ""
             lineX += highlight + str(array)[-1] + "\033[0m" + blank
         lineX += "\n"
 
     Display += lineX
 
     for num, line in enumerate(grid): # Print Y-coordinate and grid
-        highlight = "\033[41m" if num == s.y else ""
+        highlight = s.bgcolorKey[3] if num == s.y else ""
         ln        = highlight + str(num) + "\033[0m" + ' '*(maxBlankSize - len(str(num)))
         Display  += ln + ' '.join(line) + "\n"
         
