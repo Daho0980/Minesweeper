@@ -22,7 +22,7 @@ start = time.time()
 while True:
     tl.clear()
     print(grp.returnGridGraphic(syst.selectGridType(grid=s.mg, Type=1)))
-    Input = input("\n위치를 입력해주세요(y x command) : ")
+    Input = input(f"\n위치를 입력해주세요(y x command) : {s.colorKey[2]}"); print(s.colorKey['end'], end='')
     commandLine = Input.split(' ')
 
     try:

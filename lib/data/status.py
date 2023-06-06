@@ -1,4 +1,4 @@
-# Graphics
+# colors
 colorKey = {
     1     : "\033[34m", # blue
     2     : "\033[32m", # green
@@ -22,6 +22,7 @@ bgcolorKey = {
     8 : "\033[104"   # bright blue
 }
 
+# graphic?
 densityStep = {
     10  : [colorKey[8], "아주 적음"],
     20 : [colorKey[1], "적음"],
@@ -31,6 +32,7 @@ densityStep = {
     90 : [colorKey[3], "너무 많음"]
 }
 
+# icons
 icons = {
     "mine"     : f"{bgcolorKey[3]}*{colorKey['end']}",
     "flag"     : f"{colorKey[3]}■{colorKey['end']}",

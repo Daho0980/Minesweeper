@@ -92,22 +92,21 @@ def checkAllTiles(end=0) -> int:
         return count
 
     s.totalMineFound = checkUnderFlag()
-
-    if end == 0:
-        for row in range(len(s.mg)):
-            for column in range(len(s.mg[row])):
+    
+    correct   = 0
+    TileCount = 0
+    for row in range(len(s.mg)):
+        for column in range(len(s.mg[row])):
+            if end == 0:
                 if s.mg[row][column][1] == s.icons["flag"] and s.mg[row][column][0] != s.icons["mine"]:
                     s.mg[row][column][0] = s.icons["notMine"]
-        return 0
-    
-    elif end == 1:
-        correct   = 0
-        TileCount = 0
-        for row in range(len(s.mg)):
-            for column in range(len(s.mg[row])):
+            
+            elif end == 1:
                 if s.mg[row][column][1] in ['■', s.icons["flag"]]: TileCount += 1
-                if s.mg[row][column][1] == s.icons["flag"] and s.mg[row][column][0] == s.icons["mine"]:
-                    correct += 1
+                if s.mg[row][column][1] == s.icons["flag"] and s.mg[row][column][0] == s.icons["mine"]: correct += 1
+
+    if   end == 0: return 0
+    elif end == 1:
         if TileCount == s.mineSize: s.totalMineFound = s.mineSize
 
         return 1 if correct == s.mineSize or TileCount == s.mineSize else 2
