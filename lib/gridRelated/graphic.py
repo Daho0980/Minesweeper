@@ -9,31 +9,30 @@ def returnGridGraphic(grid):
     Display      = ""
     maxBlankSize = len(str(len(grid)-1))+1
 
-    # numberLine_X
-    xNum = ""
-    MAL  = len(max(grid)) # Max Array Len
+    lineX = ""
+    MAL  = len(max(grid)) # Max number's length
 
-    for nums in range(len(str(MAL)), -1, -1):
+    for nums in range(len(str(MAL)), -1, -1): # Print stacked X-coordinate
         startTo   = 0
         plusTo    = 1 if MAL%returnSquare(nums) != 0 else 0
         blank     = ' '*(returnSquare(nums)*2) if nums != 0 else ''
 
-        xNum    += (f"{s.colorKey[3]}%{s.colorKey['end']}" + ' '*(maxBlankSize-1)) if nums == 0 else (" " + ' '*(maxBlankSize-1))
+        lineX    += (f"{s.colorKey[3]}%{s.colorKey['end']}" + ' '*(maxBlankSize-1)) if nums == 0 else (" " + ' '*(maxBlankSize-1))
 
         if nums == 0: blank = ' '
         else:
-            xNum   += blank
+            lineX   += blank
             blank   = ' '*((returnSquare(nums)*2)-1)
             startTo = 1
 
         for array in range(startTo, int(MAL/returnSquare(nums))+plusTo, 1):
-            highlight = "\033[41m" if array == s.x and nums == 0 else ""
-            xNum += highlight + str(array)[-1] + "\033[0m" + blank
-        xNum += "\n"
+            highlight = "\033[41m" if array == int(s.x/returnSquare(nums)) else ""
+            lineX += highlight + str(array)[-1] + "\033[0m" + blank
+        lineX += "\n"
 
-    Display += xNum
+    Display += lineX
 
-    for num, line in enumerate(grid):
+    for num, line in enumerate(grid): # Print Y-coordinate and grid
         highlight = "\033[41m" if num == s.y else ""
         ln        = highlight + str(num) + "\033[0m" + ' '*(maxBlankSize - len(str(num)))
         Display  += ln + ' '.join(line) + "\n"
