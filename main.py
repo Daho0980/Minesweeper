@@ -51,6 +51,6 @@ print(f"""
 \n
 {explodePos}걸린 시간 :      {s.colorKey[2]}{end - start:.2f}{s.colorKey['end']} 초
 칸 크기 :        {s.colorKey[2]}{s.My} {s.colorKey['end']}x {s.colorKey[2]}{s.Mx}{s.colorKey['end']} ({s.My*s.Mx}칸)
-지뢰 밀도 :      {s.colorKey[2]}{syst.calculateDensity(syst.selectGridType(grid=s.mg, Type=0))}%{s.colorKey['end']}
+지뢰 밀도 :      {s.colorKey[2]}{syst.calculateDensity(syst.selectGridType(grid=s.mg, Type=0))}%{s.colorKey['end']} ({s.mineSize}개)
 찾은 지뢰 개수 : {s.colorKey[2]}{s.mineSize}{s.colorKey['end']} 개 중 {s.colorKey[2] if s.totalMineFound == s.mineSize else s.colorKey[3]}{s.totalMineFound}{s.colorKey['end']} 개""")
 
