@@ -26,12 +26,13 @@ while True:
     commandLine = Input.split(' ')
 
     try:
-        if int(commandLine[0]) < 0 or int(commandLine[1]) < 0 or\
+        if int(commandLine[0]) < -len(s.mg) or int(commandLine[1]) < -len(s.mg[int(commandLine[0])]) or\
            int(commandLine[0]) > len(s.mg) or int(commandLine[1]) > len(s.mg[int(commandLine[0])]): continue
     except: continue
     if len(commandLine) < 3 or len(commandLine) > 3: continue
     
-    Cy, Cx = int(commandLine[0]), int(commandLine[1])
+    Cy = int(commandLine[0]) if int(commandLine[0]) >= 0 else (len(s.mg)+int(commandLine[0]))
+    Cx = int(commandLine[1]) if int(commandLine[1]) >= 0 else (len(s.mg[int(commandLine[0])])+int(commandLine[1]))
     s.y, s.x = Cy, Cx
     if commandLine[-1] == "dig":
         if s.mg[Cy][Cx][0] == s.icons["mine"] and s.mg[Cy][Cx][1] == '■': gph.killGame(Cy=s.y, Cx=s.x); break
