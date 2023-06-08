@@ -1,4 +1,4 @@
-from lib.data        import status as s
+from lib.data        import globalVars as s
 from lib.gridRelated import system as syst
 from lib.system      import tools  as tl
 
@@ -39,9 +39,12 @@ def openTile(y:int, x:int):
 def flagTile(y, x):
     target = s.mg[y][x][1]
     
-    if   target == '■':          s.mg[y][x][1] = s.icons["flag"]
+    if   target == '■':            s.mg[y][x][1] = s.icons["flag"]
     elif target == s.icons["flag"]: s.mg[y][x][1] = '■'
     else:
+        try: int(tl.escapeAnsi(s.mg[y][x][1]))+1
+        except: return
+
         posS         = syst.peripheralSensing(y, x, syst.selectGridType(grid=s.mg, Type=0))
         unDIggedTile = 0
 

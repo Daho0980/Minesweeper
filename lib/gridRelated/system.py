@@ -1,5 +1,5 @@
 import random
-from   lib.data import status as s
+from   lib.data import globalVars as s
 
 def setNumber(y, x, lu, u, ru, l, r, ld, d, rd, grid):
     mineCount = 0

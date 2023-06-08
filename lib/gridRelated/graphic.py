@@ -1,4 +1,4 @@
-from lib.data import status as s
+from lib.data import globalVars as s
 
 def returnGridGraphic(grid):
     def returnSquare(count) -> int:

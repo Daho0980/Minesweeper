@@ -1,12 +1,12 @@
 import sys
 import time
 from   lib             import graphics, tileInteractions, gameProgressHost
-from   lib.data        import status
+from   lib.data        import globalVars
 from   lib.gridRelated import graphic, system
 from   lib.system      import tools
 
 ti, grps, gph = tileInteractions, graphics, gameProgressHost
-s             = status
+s             = globalVars
 grp, syst     = graphic, system
 tl            = tools
 
@@ -25,14 +25,25 @@ while True:
     Input = input(f"\n위치를 입력해주세요(y x command) : {s.colorKey[2]}"); print(s.colorKey['end'], end='')
     commandLine = Input.split(' ')
 
-    try:
-        if int(commandLine[0]) < -len(s.mg) or int(commandLine[1]) < -len(s.mg[int(commandLine[0])]) or\
-           int(commandLine[0]) > len(s.mg) or int(commandLine[1]) > len(s.mg[int(commandLine[0])]): continue
-    except: continue
+    limits = [[-len(s.mg), -len(s.mg[0])], [len(s.mg), len(s.mg[0])]]
+    for step, coordinate in enumerate(commandLine[:-2]):
+        escape = False
+        Type = None
+
+        try:    int(coordinate)+1; Type = 1
+        except: Type = 0
+
+        match Type:
+            case 0:
+                if coordinate != s.settings["CMK"]: escape = True; break
+            case 1:
+                if int(coordinate) < limits[0][step] or int(coordinate) >= limits[1][step]: escape = True; break
+    if escape == True: continue
+
     if len(commandLine) < 3 or len(commandLine) > 3: continue
     
-    Cy = int(commandLine[0]) if int(commandLine[0]) >= 0 else (len(s.mg)+int(commandLine[0]))
-    Cx = int(commandLine[1]) if int(commandLine[1]) >= 0 else (len(s.mg[int(commandLine[0])])+int(commandLine[1]))
+    Cy = s.y if commandLine[0] == s.settings["CMK"] else int(commandLine[0]) if int(commandLine[0]) >= 0 else (len(s.mg)+int(commandLine[0]))
+    Cx = s.x if commandLine[1] == s.settings["CMK"] else int(commandLine[1]) if int(commandLine[1]) >= 0 else (len(s.mg[int(commandLine[0])])+int(commandLine[1]))
     s.y, s.x = Cy, Cx
     if commandLine[-1] == "dig":
         if s.mg[Cy][Cx][0] == s.icons["mine"] and s.mg[Cy][Cx][1] == '■': gph.killGame(Cy=s.y, Cx=s.x); break

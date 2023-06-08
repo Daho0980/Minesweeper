@@ -1,4 +1,4 @@
-from lib.data import status as s
+from lib.data import globalVars as s
 from lib.system import tools as tl
 
 def intro():

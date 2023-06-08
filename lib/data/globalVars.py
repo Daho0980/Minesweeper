@@ -1,3 +1,12 @@
+import json
+import os
+from   pathlib import Path
+
+s = '/' if os.name == 'posix' else '\\'
+
+with open(f"{Path.cwd()}{s}lib{s}data{s}settings.json", encoding="utf-8") as File:
+    settings = json.load(File)
+
 # colors
 colorKey = {
     1     : "\033[34m", # blue
