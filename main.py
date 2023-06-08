@@ -45,13 +45,13 @@ while True:
     Cy = s.y if commandLine[0] == s.settings["CMK"] else int(commandLine[0]) if int(commandLine[0]) >= 0 else (len(s.mg)+int(commandLine[0]))
     Cx = s.x if commandLine[1] == s.settings["CMK"] else int(commandLine[1]) if int(commandLine[1]) >= 0 else (len(s.mg[int(commandLine[0])])+int(commandLine[1]))
     s.y, s.x = Cy, Cx
-    if commandLine[-1] == "dig":
+    if commandLine[-1] in ["dig", "d"]:
         if s.mg[Cy][Cx][0] == s.icons["mine"] and s.mg[Cy][Cx][1] == '■': gph.killGame(Cy=s.y, Cx=s.x); break
 
         if s.mg[Cy][Cx][1] != s.icons["flag"]: ti.openTile(Cy, Cx)
         if s.isMineExploded == True: gph.killGame(Cy=s.y, Cx=s.x); break
 
-    elif commandLine[-1] == "flag": ti.flagTile(Cy, Cx)
+    elif commandLine[-1] in ["flag", "f"]: ti.flagTile(Cy, Cx)
     
     if gph.killGame(Type=1, Cy=s.y, Cx=s.x) == True: break
 
